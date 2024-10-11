@@ -1,0 +1,41 @@
+version: '3.8' # Adicione esta linha para especificar a versão do Compose
+
+services:
+  mariadb:
+    image: mariadb:10.6
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: agendabarber_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - '3306:3306'
+    volumes:
+      - db_data:/var/lib/mysql
+
+  symfony:
+    build: ./symfony
+    container_name: symfony
+    working_dir: /var/www/symfony
+    volumes:
+      - ./symfony:/var/www/symfony
+    ports:
+      - '9000:9000'
+    command: sh -c "composer install && php-fpm"
+    depends_on:
+      - mariadb
+
+  nextjs:
+    build: ./nextjs
+    container_name: nextjs
+    working_dir: /app
+    volumes:
+      - ./nextjs:/app
+    ports:
+      - '3000:3000'
+    command: ['waitSymfony.sh', 'npm', 'run', 'dev']
+    depends_on:
+      - symfony
+
+volumes:
+  db_data:
