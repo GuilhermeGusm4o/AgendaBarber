@@ -43,3 +43,44 @@ export async function POST(request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function PUT(request) {
+  const { id, date, customerName } = await request.json();
+  try {
+    const response = await fetch(`${API_URL}/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ date, customerName }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.statusText}`);
+    }
+
+    const responseData = await response.json();
+    return NextResponse.json(responseData);
+  } catch (error) {
+    console.error('Error updating appointment:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request) {
+  const { id } = await request.json();
+  try {
+    const response = await fetch(`${API_URL}/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.statusText}`);
+    }
+
+    return NextResponse.json({ message: 'Compromisso excluído com sucesso' });
+  } catch (error) {
+    console.error('Error deleting appointment:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

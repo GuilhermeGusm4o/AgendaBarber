@@ -76,5 +76,61 @@ class AppointmentController extends AbstractController
             return $this->json(['error' => $e->getMessage()], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    #[Route("/api/appointments/{id}", methods: ["PUT"])]
+    public function edit(Request $request, int $id): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        
+        // Validação
+        if (!isset($data['date']) || !isset($data['customerName'])) {
+            return $this->json(['error' => 'Data missing'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+        
+        // Busca o compromisso
+        $appointment = $this->entityManager->getRepository(Appointment::class)->find($id);
+        
+        if (!$appointment) {
+            return $this->json(['error' => 'Appointment not found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+        
+        try {
+            $appointment->setDate(new \DateTime($data['date']));
+            $appointment->setCustomerName($data['customerName']);
+    
+            $this->entityManager->flush(); // Atualiza o compromisso
+            
+            // Converter o objeto em array
+            $responseData = [
+                'id' => $appointment->getId(),
+                'date' => $appointment->getDate()->format('Y-m-d'),
+                'customerName' => $appointment->getCustomerName(),
+            ];
+    
+            return $this->json($responseData, JsonResponse::HTTP_OK);
+        } catch (\Exception $e) {
+            return $this->json(['error' => $e->getMessage()], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route("/api/appointments/{id}", methods: ["DELETE"])]
+    public function delete(int $id): JsonResponse
+    {
+        // Busca o compromisso
+        $appointment = $this->entityManager->getRepository(Appointment::class)->find($id);
+        
+        if (!$appointment) {
+            return $this->json(['error' => 'Appointment not found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+        
+        try {
+            $this->entityManager->remove($appointment);
+            $this->entityManager->flush(); // Exclui o compromisso
+            
+            return $this->json(['message' => 'Appointment deleted'], JsonResponse::HTTP_NO_CONTENT);
+        } catch (\Exception $e) {
+            return $this->json(['error' => $e->getMessage()], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
     
 }
