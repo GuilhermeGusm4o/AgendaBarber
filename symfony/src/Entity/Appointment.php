@@ -17,7 +17,7 @@ class Appointment
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\Column(type: Types::STRING)] 
+    #[ORM\Column(type: Types::STRING)]
     private ?string $customerName = null;
 
     public function getId(): ?int

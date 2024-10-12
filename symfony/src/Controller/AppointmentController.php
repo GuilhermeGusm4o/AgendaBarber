@@ -29,20 +29,52 @@ class AppointmentController extends AbstractController
     public function list(): JsonResponse
     {
         $appointments = $this->entityManager->getRepository(Appointment::class)->findAll();
-        return $this->json($appointments);
+        
+        // Converte cada objeto em um array
+        $responseData = [];
+        foreach ($appointments as $appointment) {
+            $responseData[] = [
+                'id' => $appointment->getId(),
+                'date' => $appointment->getDate()->format('Y-m-d'),
+                'customerName' => $appointment->getCustomerName(),
+            ];
+        }
+    
+        return $this->json($responseData);
     }
+    
 
     #[Route("/api/appointments", methods: ["POST"])]
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-
-        $appointment = new Appointment();
-        $appointment->setDate(new \DateTime($data['date']));
-
-        $this->entityManager->persist($appointment);
-        $this->entityManager->flush();
-
-        return $this->json($appointment, JsonResponse::HTTP_CREATED);
+        
+        // Validação
+        if (!isset($data['date']) || !isset($data['customerName'])) {
+            return $this->json(['error' => 'Data missing'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+    
+        try {
+            $appointment = new Appointment();
+            
+            $appointment->setDate(new \DateTime($data['date']));
+            $appointment->setCustomerName($data['customerName']);
+    
+            $this->entityManager->persist($appointment);
+            
+            $this->entityManager->flush();
+    
+            // Converter o objeto em array
+            $responseData = [
+                'id' => $appointment->getId(),
+                'date' => $appointment->getDate()->format('Y-m-d'),
+                'customerName' => $appointment->getCustomerName(),
+            ];
+    
+            return $this->json($responseData, JsonResponse::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return $this->json(['error' => $e->getMessage()], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
+    
 }

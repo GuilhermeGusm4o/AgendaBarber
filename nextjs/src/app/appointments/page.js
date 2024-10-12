@@ -24,21 +24,29 @@ const AppointmentsPage = () => {
     }
   };
 
-  // Função para adicionar um novo compromisso
+  // adicionar um novo compromisso
   const addAppointment = async (e) => {
     e.preventDefault();
     if (!date) return;
 
-    await fetch('/api/appointments', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ date, customerName: 'Cliente Teste' }),
-    });
+    try {
+      const response = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ date, customerName: 'Cliente Teste' }),
+      });
 
-    setDate('');
-    fetchAppointments(); // Recarrega os compromissos depois de adicionar
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      setDate('');
+      fetchAppointments();
+    } catch (error) {
+      console.error('Error creating appointment:', error);
+    }
   };
 
   useEffect(() => {
