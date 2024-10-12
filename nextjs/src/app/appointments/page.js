@@ -49,9 +49,13 @@ const AppointmentsPage = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      fetchAppointments();
+
+      if (editingAppointment) {
+        setEditingAppointment(null); // Reseta o estado de edição
+      }
       setDate('');
       setCustomerName('');
-      fetchAppointments();
     } catch (error) {
       console.error('Error creating/updating appointment:', error);
     }

@@ -45,14 +45,15 @@ export async function POST(request) {
 }
 
 export async function PUT(request) {
-  const { id, date, customerName } = await request.json();
+  //   const { id, date, customerName } = await request.json();
+  const data = await request.json();
   try {
     const response = await fetch(`${API_URL}/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ date, customerName }),
+      body: JSON.stringify(data),
     });
 
     if (!response.ok) {
