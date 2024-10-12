@@ -9,4 +9,5 @@ COPY . .
 RUN chmod +x /usr/local/bin/waitSymfony.sh
 
 RUN npm install
-CMD ["waitSymfony.sh", "npm", "run", "dev"]
+CMD ["sh", "/usr/local/bin/waitSymfony.sh", "npm", "run", "dev"]
+

@@ -18,15 +18,21 @@ class AppointmentController extends AbstractController
         $this->entityManager = $entityManager;
     }
 
+    #[Route("/", methods: ["HEAD", "GET"])]
+    public function index(): JsonResponse
+    {
+        return $this->json(['message' => 'API is running.'], JsonResponse::HTTP_OK);
+    }
 
-    #@Route("/api/appointments", methods={"GET"})
+    
+    #[Route("/api/appointments", methods: ["GET"])]
     public function list(): JsonResponse
     {
         $appointments = $this->entityManager->getRepository(Appointment::class)->findAll();
         return $this->json($appointments);
     }
 
-    #@Route("/api/appointments", methods={"POST"})
+    #[Route("/api/appointments", methods: ["POST"])]
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);

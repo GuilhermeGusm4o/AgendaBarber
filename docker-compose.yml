@@ -1,4 +1,4 @@
-version: '3.8' # Adicione esta linha para especificar a versão do Compose
+version: '3.8'
 
 services:
   mariadb:
@@ -19,11 +19,22 @@ services:
     working_dir: /var/www/symfony
     volumes:
       - ./symfony:/var/www/symfony
-    ports:
-      - '9000:9000'
-    command: sh -c "composer install && php-fpm"
     depends_on:
       - mariadb
+    expose:
+      - '9000'
+    command: php-fpm
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    volumes:
+      - ./symfony:/var/www/symfony
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - '8080:80'
+    depends_on:
+      - symfony
 
   nextjs:
     build: ./nextjs
@@ -35,7 +46,7 @@ services:
       - '3000:3000'
     command: ['waitSymfony.sh', 'npm', 'run', 'dev']
     depends_on:
-      - symfony
+      - nginx
 
 volumes:
   db_data:
